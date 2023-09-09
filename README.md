@@ -1,6 +1,6 @@
 Inspiration: 
 [Scrapy Course – Python Web Scraping for Beginners](https://www.youtube.com/watch?v=mBoX_JCKZTE)  
-Website to scrape: https://strata.ca
+Website to scrape: [BestWatch](https://bestwatch.com.hk/sale.html), [Strata](https://strata.ca) (WIP), 
 
 Installation
 
