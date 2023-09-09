@@ -17,6 +17,10 @@ class BestwatchspiderSpider(scrapy.Spider):
             watch_url = watch.css('.product-item-brand a ::attr(href)').get()
             yield response.follow(watch_url, callback=self.parse_watch_page)
 
+        next_page_url = response.css('li.pages-item-next > a::attr(href)').get()
+        if next_page_url is not None:
+            yield response.follow(next_page_url, callback=self.parse)
+
     def parse_watch_page(self, response):
         watch_data = {
             'url': response.url,
