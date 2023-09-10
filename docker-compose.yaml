@@ -5,8 +5,10 @@ services:
     image: postgres:15.2
     restart: always
     environment:
-      POSTGRES_DB: pgdb
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
+      - POSTGRES_DB=pgdb
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - ./postgres:/var/lib/postgresql/data
     ports:
-      - '23910:8080'
+      - '23910:5432'
