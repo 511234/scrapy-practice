@@ -6,54 +6,9 @@ import psycopg2
 from sqlalchemy.orm import sessionmaker
 from scrapy.utils.serialize import ScrapyJSONEncoder
 
-class BestwatchscraperPipeline:
-
-    def __init__(self):
-
-        # self._encoder = ScrapyJSONEncoder()
-        engine = db_connect()
-        create_table(engine)
-        self.Session = sessionmaker(bind=engine)
-
-    def process_item(self, item, spider):
-        """Save deals in the database.
-
-        This method is called for every item pipeline component.
-        """
-
-        session = self.Session()
-        instance = session.query(WatchItemDB).filter_by(**item).one_or_none()
-        if instance:
-            print('------ instance ------')
-            print(instance)
-            return instance
-        else:
-            print('********* we are in else ********')
-
-
-        watch_item_db = WatchItemDB(
-            url=item['url'],
-            title=item['title'],
-            sku=item['sku'],
-            currency=item['currency'],
-            price=item['price'],
-            watch_spec=self._encoder.encode(item['watch_spec'])
-        )
-
-        try:
-            session.add(watch_item_db)
-            session.commit()
-        except:
-            session.rollback()
-            raise
-        finally:
-            session.close()
-        return item
-
 class SaveIntoPostgresPipeline:
 
     def __init__(self):
-
         host = 'localhost'
         user = 'user'
         password = 'password'
@@ -63,8 +18,6 @@ class SaveIntoPostgresPipeline:
         self._encoder = ScrapyJSONEncoder()
         self.connection = psycopg2.connect(host=host, user=user, password=password, dbname=dbname, port=port)
         self.cur = self.connection.cursor()
-
-        ## Create quotes table if none exists
 
         # self.cur.execute("""
         # BEGIN;
@@ -78,30 +31,50 @@ class SaveIntoPostgresPipeline:
         # $$;
         # """)
 
-        self.cur.execute("""
-        CREATE TABLE IF NOT EXISTS bestwatch(
-            id serial PRIMARY KEY, 
-            url TEXT,
-            title TEXT,
-            sku TEXT,
-            currency VARCHAR(3),
-            price FLOAT,
-            watch_spec JSONB
+        self.cur.execute(
+        """
+        CREATE TABLE IF NOT EXISTS bestwatch_products(
+            id SERIAL PRIMARY KEY, 
+            sku VARCHAR(255) UNIQUE
         )
         """)
 
-
+        self.cur.execute("""
+        CREATE TABLE IF NOT EXISTS bestwatch_product_details(
+            id SERIAL PRIMARY KEY,
+            product_id INTEGER,
+            url TEXT,
+            title VARCHAR(255),
+            currency VARCHAR(3),
+            price NUMERIC(15,2),
+            watch_spec JSONB,
+            CONSTRAINT fk_product_id
+            FOREIGN KEY(product_id)
+            REFERENCES bestwatch_products(id)
+            ON DELETE CASCADE
+        )
+        """)
 
     def process_item(self, item, spider):
         self.cur.execute("""
-        INSERT INTO bestwatch (url, title, sku, currency, price, watch_spec)
+        INSERT INTO bestwatch_products (sku)
+        VALUES (%s)
+        RETURNING id
+        """, (
+            item["sku"],
+        ))
+
+        last_id = self.cur.fetchone()[0]
+
+        self.cur.execute("""
+        INSERT INTO bestwatch_product_details (product_id, price, url, title, currency, watch_spec)
         VALUES (%s,%s,%s,%s,%s,%s)
         """, (
+            last_id,
+            float(item["price"]),
             item["url"],
             item["title"],
-            item["sku"],
             item["currency"],
-            float(item["price"]),
             self._encoder.encode(item['watch_spec'])
         ))
 

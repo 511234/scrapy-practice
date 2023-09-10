@@ -1,11 +1,10 @@
 from scrapy.utils.project import get_project_settings
 from sqlalchemy import (
-    Integer, Text, Float, JSON)
+    Integer, Text, Float, JSON, ForeignKey)
 from sqlalchemy import create_engine, Column
 from sqlalchemy.ext.declarative import declarative_base
 
 DeclarativeBase = declarative_base()
-
 
 def db_connect():
     """
@@ -20,12 +19,18 @@ def create_table(engine):
 
 
 class WatchItemDB(DeclarativeBase):
-    __tablename__ = "bestwatch"
+    __tablename__ = "bestwatch_products"
 
     id = Column(Integer, primary_key=True)
+    sku = Column('sku', Text())
+
+class WatchDynamicItemDB(DeclarativeBase):
+    __tablename__ = "bestwatch_product_details"
+
+    id = Column(Integer, primary_key=True)
+    product_id = Column(Integer, ForeignKey("bestwatch_products"), nullable=False)
     url = Column('url', Text())
     title = Column('title', Text())
-    sku = Column('sku', Text())
     currency = Column('currency', Text())
     price = Column('price', Float())
     watch_spec = Column('watch_spec', JSON())
