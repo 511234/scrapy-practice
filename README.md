@@ -1,18 +1,20 @@
 ## Scrapy Practice
 
-## Inspiration: 
+## Inspiration:
+
 [Scrapy Course – Python Web Scraping for Beginners](https://www.youtube.com/watch?v=mBoX_JCKZTE)  
-Website to scrape: [BestWatch](https://bestwatch.com.hk/sale.html), [Strata](https://strata.ca) (WIP), 
+Website to scrape: [BestWatch](https://bestwatch.com.hk/sale.html), [Strata](https://strata.ca) (WIP),
 
 ## Installation
 
 ```
 python3.11 -m venv venv
 source venv/bin/activate
-pip install scrapy ipython
+pip3 install scrapy ipython psycopg2-binary
 ```
 
 ## Configuration
+
 ```
 # In scrapy.cfg:
 shell = ipython
@@ -20,6 +22,7 @@ shell = ipython
 ```
 
 ## How to Use
+
 ```
 # Output to console
 scrapy crawl bestwatchspider
@@ -29,6 +32,7 @@ scrapy crawl bestwatch -O bestwatch.csv
 ```
 
 ## Practice area
+
 ```
 scrapy shell
 
