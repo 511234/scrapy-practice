@@ -35,30 +35,52 @@ class SaveIntoPostgresPipeline:
         """
         CREATE TABLE IF NOT EXISTS bestwatch_products(
             id SERIAL PRIMARY KEY, 
-            sku VARCHAR(255) UNIQUE
+            sku VARCHAR(255) UNIQUE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
         """)
 
         self.cur.execute("""
         CREATE TABLE IF NOT EXISTS bestwatch_product_details(
             id SERIAL PRIMARY KEY,
-            product_id INTEGER,
+            product_id INTEGER UNIQUE,
             url TEXT,
             title VARCHAR(255),
             currency VARCHAR(3),
             price NUMERIC(15,2),
             watch_spec JSONB,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             CONSTRAINT fk_product_id
-            FOREIGN KEY(product_id)
-            REFERENCES bestwatch_products(id)
-            ON DELETE CASCADE
+                FOREIGN KEY(product_id)
+                REFERENCES bestwatch_products(id)
+                ON DELETE CASCADE
         )
         """)
+
+        self.cur.execute("""
+            CREATE OR REPLACE FUNCTION update_updated_at()
+            RETURNS TRIGGER AS $$
+            BEGIN
+            NEW.updated_at = now();
+            RETURN NEW;
+            END;
+            $$ language 'plpgsql'
+        """)
+
+        self.cur.execute("""
+            CREATE TRIGGER update_bw_details_updated_at
+            BEFORE UPDATE ON bestwatch_product_details
+            FOR EACH ROW
+            EXECUTE PROCEDURE update_updated_at()
+        """)
+
 
     def process_item(self, item, spider):
         self.cur.execute("""
         INSERT INTO bestwatch_products (sku)
         VALUES (%s)
+        ON CONFLICT (sku) DO NOTHING
         RETURNING id
         """, (
             item["sku"],
@@ -69,6 +91,12 @@ class SaveIntoPostgresPipeline:
         self.cur.execute("""
         INSERT INTO bestwatch_product_details (product_id, price, url, title, currency, watch_spec)
         VALUES (%s,%s,%s,%s,%s,%s)
+        ON CONFLICT (product_id) DO UPDATE
+            SET price = EXCLUDED.price,
+                url = EXCLUDED.url,
+                title = EXCLUDED.title,
+                currency = EXCLUDED.currency,
+                watch_spec = EXCLUDED.watch_spec
         """, (
             last_id,
             float(item["price"]),
