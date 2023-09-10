@@ -24,7 +24,7 @@ shell = ipython
 ## How to Use
 
 ```
-# Output to console
+# Output to console ( & database if pipeline is set)
 scrapy crawl bestwatchspider
 
 # Output to csv
