@@ -65,7 +65,13 @@ class BestwatchspiderSpider(scrapy.Spider):
             subtables = table_col.css('ul.table > li')
             for subtable in subtables:
                 subtable_label = subtable.css('.table__label::text').get().strip('\n').strip().lower().replace(' ', '_')
-                subtable_value = subtable.css('.table__context::text').get().strip('\n').strip()
+                subtable_value_el = subtable.css('.table__context a::text').get()
+
+                if subtable_value_el is None:
+                    subtable_value = subtable.css('.table__context::text').get().strip('\n').strip()
+                else:
+                    subtable_value = subtable_value_el.strip('\n').strip()
+
                 watch_item['watch_spec'][col_subtitle][subtable_label] = subtable_value
                 # watch_data['watch_spec'][col_subtitle][subtable.css('.table__label::text').get()] = subtable.css('.table__context::text').get()
                 # watch_spec_data.setdefault(col_subtitle, {}).setdefault(subtable_label, subtable_value)
