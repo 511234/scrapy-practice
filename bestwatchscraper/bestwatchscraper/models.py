@@ -1,6 +1,6 @@
 from scrapy.utils.project import get_project_settings
 from sqlalchemy import (
-    Integer, String, Text)
+    Integer, Text, Float, JSON)
 from sqlalchemy import create_engine, Column
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -20,8 +20,12 @@ def create_table(engine):
 
 
 class WatchItemDB(DeclarativeBase):
-    __tablename__ = "quote_table"
+    __tablename__ = "bestwatch"
 
     id = Column(Integer, primary_key=True)
-    quote = Column('quote', Text())
-    author = Column('author', String(100))
+    url = Column('url', Text())
+    title = Column('title', Text())
+    sku = Column('sku', Text())
+    currency = Column('currency', Text())
+    price = Column('price', Float())
+    watch_spec = Column('watch_spec', JSON())
