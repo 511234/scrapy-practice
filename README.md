@@ -10,7 +10,7 @@ Website to scrape: [BestWatch](https://bestwatch.com.hk/sale.html), [Strata](htt
 ```
 python3.11 -m venv venv
 source venv/bin/activate
-pip3 install scrapy ipython psycopg2-binary
+pip3 install scrapy ipython psycopg2-binary shub
 ```
 
 ## Configuration
@@ -29,6 +29,13 @@ scrapy crawl bestwatchspider
 
 # Output to csv
 scrapy crawl bestwatch -O bestwatch.csv
+```
+
+## Deployment at [Zyte](https://app.zyte.com/)  
+```
+$ pip install shub
+$ shub login
+$ shub deploy {id}
 ```
 
 ## Practice area

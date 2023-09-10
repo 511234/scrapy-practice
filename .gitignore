@@ -3,3 +3,6 @@ venv/
 *.csv
 postgres/
 pyvenv.cfg
+build/
+project.egg-info/
+setup.py
