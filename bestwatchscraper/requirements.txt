@@ -1,0 +1,5 @@
+itemadapter==0.8.0
+psycopg2_binary==2.9.7
+Scrapy==2.10.1
+setuptools==65.5.0
+SQLAlchemy==2.0.20
