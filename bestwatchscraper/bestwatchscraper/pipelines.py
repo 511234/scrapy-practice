@@ -1,22 +1,14 @@
 import json
-# from bestwatchscraper.models import WatchItemDB
-# from bestwatchscraper.models import db_connect, create_table
-
 import psycopg2
 from sqlalchemy.orm import sessionmaker
+from scrapy.utils.project import get_project_settings
 from scrapy.utils.serialize import ScrapyJSONEncoder
 
 class SaveIntoPostgresPipeline:
 
     def __init__(self):
-        host = 'localhost'
-        user = 'user'
-        password = 'password'
-        dbname = 'pgdb'
-        port = '23910'
-
         self._encoder = ScrapyJSONEncoder()
-        self.connection = psycopg2.connect(host=host, user=user, password=password, dbname=dbname, port=port)
+        self.connection = psycopg2.connect(**get_project_settings().get('CONNECTION_SETTING'))
         self.cur = self.connection.cursor()
 
         self.cur.execute(

@@ -13,6 +13,13 @@ SPIDER_MODULES = ['bestwatchscraper.spiders']
 NEWSPIDER_MODULE = 'bestwatchscraper.spiders'
 
 CONNECTION_STRING = 'postgresql+psycopg2://user:password@localhost:23910/pgdb'
+CONNECTION_SETTING = {
+    'host': 'localhost',
+    'user': 'user',
+    'password': 'password',
+    'dbname': 'pgdb',
+    'port': '23910'
+}
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 # USER_AGENT = 'bestwatchscraper (+http://www.yourdomain.com)'
