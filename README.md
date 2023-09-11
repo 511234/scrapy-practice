@@ -10,10 +10,10 @@ WIP: [Data from API website: Strata](https://strata.ca)
 
 ## Screenshots
 Job Overview on Zyte (Scrapy Cloud)
-![Zyte](bestwatchscraper/bestwatchscraper/screenshots/zyte.png)
+![Zyte](bestwatchscraper/screenshots/zyte.png)
 
 Data stored on Supabase
-![Supabase](bestwatchscraper/bestwatchscraper/screenshots/supabase.png)
+![Supabase](bestwatchscraper/screenshots/supabase.png)
 
 
 ## Installation
