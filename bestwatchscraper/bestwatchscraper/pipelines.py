@@ -1,6 +1,6 @@
 import json
-from bestwatchscraper.models import WatchItemDB
-from bestwatchscraper.models import db_connect, create_table
+# from bestwatchscraper.models import WatchItemDB
+# from bestwatchscraper.models import db_connect, create_table
 
 import psycopg2
 from sqlalchemy.orm import sessionmaker
@@ -19,18 +19,6 @@ class SaveIntoPostgresPipeline:
         self.connection = psycopg2.connect(host=host, user=user, password=password, dbname=dbname, port=port)
         self.cur = self.connection.cursor()
 
-        # self.cur.execute("""
-        # BEGIN;
-        #
-        # DO $$
-        # BEGIN
-        #     IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'task_status') THEN
-        #         create type task_status AS ENUM ('todo', 'doing', 'blocked', 'done');
-        #     END IF;
-        # END
-        # $$;
-        # """)
-
         self.cur.execute(
         """
         CREATE TABLE IF NOT EXISTS bestwatch_products(
@@ -43,7 +31,7 @@ class SaveIntoPostgresPipeline:
         self.cur.execute("""
         CREATE TABLE IF NOT EXISTS bestwatch_product_details(
             id SERIAL PRIMARY KEY,
-            product_id INTEGER UNIQUE,
+            product_id INTEGER,
             url TEXT,
             title VARCHAR(255),
             currency VARCHAR(3),
@@ -69,20 +57,32 @@ class SaveIntoPostgresPipeline:
         """)
 
         self.cur.execute("""
-            CREATE TRIGGER update_bw_details_updated_at
-            BEFORE UPDATE ON bestwatch_product_details
-            FOR EACH ROW
-            EXECUTE PROCEDURE update_updated_at()
+            DO $$
+            BEGIN
+                IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'update_bw_details_updated_at') THEN
+                    CREATE TRIGGER update_bw_details_updated_at
+                    BEFORE UPDATE ON bestwatch_product_details
+                    FOR EACH ROW
+                    EXECUTE PROCEDURE update_updated_at();
+                END IF;
+            END
+            $$;
         """)
 
 
     def process_item(self, item, spider):
         self.cur.execute("""
-        INSERT INTO bestwatch_products (sku)
-        VALUES (%s)
-        ON CONFLICT (sku) DO NOTHING
-        RETURNING id
+        WITH new_entry_record AS(
+            INSERT INTO bestwatch_products (sku)
+            VALUES (%s)
+            ON CONFLICT (sku) DO NOTHING
+            RETURNING id
+        )
+        SELECT * FROM new_entry_record
+        UNION
+            SELECT id FROM bestwatch_products WHERE sku=%s;
         """, (
+            item["sku"],
             item["sku"],
         ))
 
@@ -91,12 +91,6 @@ class SaveIntoPostgresPipeline:
         self.cur.execute("""
         INSERT INTO bestwatch_product_details (product_id, price, url, title, currency, watch_spec)
         VALUES (%s,%s,%s,%s,%s,%s)
-        ON CONFLICT (product_id) DO UPDATE
-            SET price = EXCLUDED.price,
-                url = EXCLUDED.url,
-                title = EXCLUDED.title,
-                currency = EXCLUDED.currency,
-                watch_spec = EXCLUDED.watch_spec
         """, (
             last_id,
             float(item["price"]),
