@@ -1,9 +1,20 @@
-## Scrapy Practice
+# Scrapy Practice
 
 ## Inspiration:
 
 [Scrapy Course – Python Web Scraping for Beginners](https://www.youtube.com/watch?v=mBoX_JCKZTE)  
-Website to scrape: [BestWatch](https://bestwatch.com.hk/sale.html), [Strata](https://strata.ca) (WIP),
+
+## Website to scrape:  
+Finished: [SSR website: BestWatch](https://bestwatch.com.hk/sale.html)  
+WIP: [Data from API website: Strata](https://strata.ca)
+
+## Screenshots
+Job Overview on Zyte (Scrapy Cloud)
+![Zyte](bestwatchscraper/screenshots/zyte.png)
+
+Data stored on Supabase
+![Supabase](bestwatchscraper/screenshots/supabase.png)
+
 
 ## Installation
 
